@@ -13,6 +13,7 @@ app.use(method0verride('_method'));
 
 mongoose.connect(process.env.URI || process.env.CONNECTION)
 
+console.log(process.env.URI);
 app.use('/posts', postsRouter);
 
 app.get('/', async (req, res) => {
