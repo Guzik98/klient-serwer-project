@@ -1,8 +1,8 @@
 FROM node:latest
 WORKDIR /app
-COPY package.json ./app
-COPY server.js ./app
-COPY . ./app
+COPY package*.json ./
 RUN npm install
+COPY . .
 EXPOSE 5000
 ENTRYPOINT ["node", "server.js"]
+
