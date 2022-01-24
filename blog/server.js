@@ -8,24 +8,16 @@ const cors = require('cors')
 require('dotenv').config();
 const method0verride = require('method-override')
 
-const {
-    DBURL,
-}  = process.env;
+function dbConnect () {
+    console.log(`trying initialize connection do database: ${dbConfig.url}`)
 
-const start = async () => {
-    try {
-        await mongoose.connect(
-            DBURL,
-            {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            }
-        );
-    } catch(e) {
-        console.log(e);
-    }
-};
-
+    mongoose.connect(dbConfig.url).then(() => {
+        console.log(`Successfully connected to the database`)
+    }).catch(err => {
+        console.log(`Could not connect to the database: ${err}. Will try again very soon...`)
+        setTimeout(dbConnect, 5000)
+    })
+}
 
 const app = express()
 app.use(cors())
@@ -36,10 +28,12 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 
+const dbConfig = {}
+dbConfig.url = process.env.DBURL || 'mongodb://localhost:27017/blog'
+
 mongoose.Promise = global.Promise
 
-start().then(r => console.log("Connected to mongodb") ).catch((e) => console.log(e))
-
+dbConnect()
 
 app.use(express.static(__dirname + '/views'));
 app.set('view engine', 'ejs');
@@ -47,12 +41,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(method0verride('_method'));
 
 
-console.log('url',DBURL);
+console.log('url',process.env.DBURL);
+
+
 app.use('/posts', postsRouter);
 
 app.get('/', async (req, res) => {
     const posts = await Post.find();
     res.render('posts/index', { posts: posts });
+});
+
+
+app.listen(5000, function () {
+    console.log("app listening on port 5000!");
 });
 
 
