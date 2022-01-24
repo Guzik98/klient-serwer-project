@@ -8,15 +8,31 @@ const cors = require('cors')
 require('dotenv').config();
 const method0verride = require('method-override')
 
-function dbConnect () {
-    console.log(`trying initialize connection do database: ${dbConfig.url}`)
+const {
+    DBURL,
+    USER_NAME,
+    USER_PWD
+}  = process.env;
 
-    mongoose.connect(dbConfig.url).then(() => {
+function dbConnect () {
+    console.log(`trying initialize connection do database: ${DBURL}`)
+
+    mongoose.connect(DBURL,
+        {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            auth: {
+                user: USER_NAME,
+                password: USER_PWD
+            }
+        }.then(() => {
         console.log(`Successfully connected to the database`)
+            console.log(USER_NAME)
+            console.log(USER_PWD)
     }).catch(err => {
         console.log(`Could not connect to the database: ${err}. Will try again very soon...`)
         setTimeout(dbConnect, 5000)
-    })
+    }))
 }
 
 const app = express()
@@ -28,8 +44,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 
-const dbConfig = {}
-dbConfig.url = process.env.DBURL || 'mongodb://localhost:27017/blog'
+
 
 mongoose.Promise = global.Promise
 
@@ -41,7 +56,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(method0verride('_method'));
 
 
-console.log('url',process.env.DBURL);
+console.log('url',DBURL);
 app.use('/posts', postsRouter);
 
 app.get('/', async (req, res) => {
