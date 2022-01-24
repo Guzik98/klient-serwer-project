@@ -1,0 +1,56 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blogapp-deploy
+  labels:
+    app: blogapp-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blogapp-deploy
+  template:
+    metadata:
+      labels:
+        app: blogapp-deploy
+      name: blogapp-deploy
+    spec:
+      containers:
+        - name: blogapp-deploy
+          image: default-route-openshift-image-registry.apps.ocp.lab.cloudpak.site/labproj04/blog-app:1.0
+          ports:
+            - containerPort: 5000
+          env:
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-user
+            - name: USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-password
+            - name: URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configmap
+                  key: mongo-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: blogapp-deploy
+  name: blogapp-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: blogapp-deploy
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+status:
+  loadBalancer: {}
