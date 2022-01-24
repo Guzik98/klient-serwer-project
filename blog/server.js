@@ -22,6 +22,8 @@ const start = async () => {
                 useCreateIndex: true,
             }
         );
+    } catch(e) {
+        console.log(e);
     }
 };
 
