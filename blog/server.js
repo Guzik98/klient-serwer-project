@@ -10,30 +10,21 @@ const method0verride = require('method-override')
 
 const {
     DBURL,
-    USER_NAME,
-    USER_PWD
 }  = process.env;
 
-function dbConnect () {
-    console.log(`trying initialize connection do database: ${DBURL}`)
-
-    mongoose.connect(DBURL,
-        {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            auth: {
-                user: USER_NAME,
-                password: USER_PWD
+const start = async () => {
+    try {
+        await mongoose.connect(
+            DBURL,
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                useCreateIndex: true,
             }
-        }.then(() => {
-        console.log(`Successfully connected to the database`)
-            console.log(USER_NAME)
-            console.log(USER_PWD)
-    }).catch(err => {
-        console.log(`Could not connect to the database: ${err}. Will try again very soon...`)
-        setTimeout(dbConnect, 5000)
-    }))
-}
+        );
+    }
+};
+
 
 const app = express()
 app.use(cors())
@@ -44,11 +35,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 
-
-
 mongoose.Promise = global.Promise
 
-dbConnect()
+start().then(r => console.log("Connected to mongodb") ).catch((e) => console.log(e))
+
 
 app.use(express.static(__dirname + '/views'));
 app.set('view engine', 'ejs');
