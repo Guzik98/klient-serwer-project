@@ -17,22 +17,24 @@ spec:
       containers:
         - name: mongo
           image: default-route-openshift-image-registry.apps.ocp.lab.cloudpak.site/labproj04/mongo:latest
+          securityContext:
+            runAsUser: 1000
           ports:
             - containerPort: 27017
           volumeMounts:
             - mountPath: /data/db
               name: cluster-volume
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongo-secret
-                  key: mongo-user
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mongo-secret
-                  key: mongo-password
+      #      env:
+    #         - name: MONGO_INITDB_ROOT_USERNAME
+      #         valueFrom:
+        #         secretKeyRef:
+              #      name: mongo-secret
+              #      key: mongo-user
+              #  - name: MONGO_INITDB_ROOT_PASSWORD
+              #   valueFrom:
+              #    secretKeyRef:
+              #     name: mongo-secret
+              #     key: mongo-password
       volumes:
         - name: cluster-volume
           persistentVolumeClaim:
@@ -50,5 +52,3 @@ spec:
     - protocol: TCP
       port: 27017
       targetPort: 27017
-
-

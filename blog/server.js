@@ -9,22 +9,15 @@ require('dotenv').config();
 const method0verride = require('method-override')
 
 function dbConnect () {
-    mongoose.connect(dbConfig.url, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        user: process.env.USER_NAME,
-        pass: process.env.USER_PWD,
-        authSource: 'admin'
-    }).then(() => {
-        console.log('Successfully connected to the database`')
+    console.log(`trying initialize connection do database: ${dbConfig.url}`)
+
+    mongoose.connect(dbConfig.url).then(() => {
+        console.log(`Successfully connected to the database`)
     }).catch(err => {
-        console.log('Could not connect to the database: $. Will try again very soon...')
+        console.log(`Could not connect to the database: ${err}. Will try again very soon...`)
         setTimeout(dbConnect, 5000)
-        console.log(err);
-        // process.exit()
     })
 }
-
 
 const app = express()
 app.use(cors())
@@ -36,12 +29,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 const dbConfig = {}
-dbConfig.url = process.env.DBURL || 'mongodb://localhost/blog'
-
-dbConnect()
+dbConfig.url = process.env.DBURL || 'mongodb://localhost:27017/blog'
 
 mongoose.Promise = global.Promise
 
+dbConnect()
 
 app.use(express.static(__dirname + '/views'));
 app.set('view engine', 'ejs');
@@ -49,6 +41,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(method0verride('_method'));
 
 
+console.log('url',process.env.DBURL);
 app.use('/posts', postsRouter);
 
 app.get('/', async (req, res) => {

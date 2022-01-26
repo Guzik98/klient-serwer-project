@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: mongo-configmap
 data:
-  mongo-url: mongodb://root:password@mongo-service.labproj04.svc.cluster.local:27017/blog
+  mongo-url: mongodb://mongo-service.labproj04.svc.cluster.local:27017/blog
+
 
 
